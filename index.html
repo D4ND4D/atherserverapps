@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aether Staff Applications - Admin Portal</title>
+    <style>
+        :root {
+            --primary: #5865F2;
+            --secondary: #4e5d94;
+            --dark: #23272A;
+            --light: #F6F6F6;
+            --success: #57F287;
+            --danger: #ED4245;
+            --warning: #FEE75C;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #36393f;
+            color: var(--light);
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #2f3136;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            flex: 1;
+        }
+        
+        header {
+            background-color: var(--primary);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .admin-login-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            background-color: var(--dark);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .tabs {
+            display: flex;
+            background-color: var(--dark);
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .tab-button:hover {
+            background-color: #3e4147;
+        }
+        
+        .tab-button.active {
+            background-color: var(--secondary);
+        }
+        
+        .form-container {
+            padding: 20px;
+        }
+        
+        .form {
+            display: none;
+        }
+        
+        .form.active {
+            display: block;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #40444b;
+        }
+        
+        .form-section-title {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            background-color: #40444b;
+            color: var(--light);
+            font-size: 14px;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .required::after {
+            content: " *";
+            color: var(--danger);
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+        }
+        
+        button[type="submit"] {
+            width: 100%;
+        }
+        
+        .success-message {
+            display: none;
+            background-color: var(--success);
+            color: #000;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        
+        .admin-panel {
+            display: none;
+            padding: 20px;
+        }
+        
+        .admin-panel h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .applications-list {
+            margin-top: 20px;
+        }
+        
+        .application-item {
+            background-color: #40444b;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .application-item h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .application-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .application-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .download-btn {
+            background-color: var(--success);
+            color: #000;
+        }
+        
+        .delete-btn {
+            background-color: var(--danger);
+        }
+        
+        .login-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .login-form {
+            background-color: #2f3136;
+            padding: 30px;
+            border-radius: 8px;
+            width: 400px;
+            max-width: 90%;
+        }
+        
+        .login-form h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        
+        .login-form .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .login-form button {
+            width: 100%;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 20px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 3000;
+            transition: opacity 0.3s;
+        }
+        
+        @media (max-width: 600px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .application-meta {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .application-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Aether's Staff Applications</h1>
+            <p>Apply to help our community thrive</p>
+            <button class="admin-login-btn" id="admin-login-btn">Admin Login</button>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('mod')">Moderator Application</button>
+            <button class="tab-button" onclick="switchTab('admin')">Admin Application</button>
+        </div>
+        
+        <div class="form-container">
+            <!-- Moderator Application Form -->
+            <form id="mod-form" class="form active">
+                <div class="form-section">
+                    <h3 class="form-section-title">Basic Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="mod-username" class="required">What is your in-game name (IGN) and Discord username?</label>
+                        <input type="text" id="mod-username" placeholder="YourIGN / DiscordUser#1234" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="mod-age" class="required">How old are you?</label>
+                        <input type="number" id="mod-age" min="13" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="mod-timezone" class="required">What is your timezone?</label>
+                        <input type="text" id="mod-timezone" placeholder="EST, PST, GMT, etc." required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="mod-activeness" class="required">How many hours per week are you active in-game and on Discord?</label>
+                        <textarea id="mod-activeness" placeholder="Please specify hours for both in-game and Discord activity..." required></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3 class="form-section-title">Moderation & Problem Solving</h3>
+                    
+                    <div class="form-group">
+                        <label for="mod-arguing" class="required">If two players are arguing in chat and it gets heated, what would you do?</label>
+                        <textarea id="mod-arguing" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="mod-breaking-rules" class="required">How would you handle someone breaking the rules (e.g., griefing, spamming, or cheating)?</label>
+                        <textarea id="mod-breaking-rules" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="mod-friend-breaks-rules" class="required">A close friend of yours breaks the rules. How would you respond?</label>
+                        <textarea id="mod-friend-breaks-rules" required></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3 class="form-section-title">Personality & Commitment</h3>
+                    
+                    <div class="form-group">
+                        <label for="mod-why" class="required">Why do you want to be a Moderator on this server?</label>
+                        <textarea id="mod-why" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="mod-qualities" class="required">What qualities do you have that would make you a good Moderator?</label>
+                        <textarea id="mod-qualities" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="mod-instructions" class="required">Are you comfortable taking instructions from Admins and working as part of a staff team?</label>
+                        <textarea id="mod-instructions" required></textarea>
+                    </div>
+                </div>
+                
+                <button type="submit">Submit Moderator Application</button>
+                <div id="mod-success" class="success-message">
+                    Your moderator application has been submitted successfully!
+                </div>
+            </form>
+            
+            <!-- Admin Application Form -->
+            <form id="admin-form" class="form">
+                <div class="form-section">
+                    <h3 class="form-section-title">Basic Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="admin-username" class="required">What is your in-game name (IGN) and Discord username?</label>
+                        <input type="text" id="admin-username" placeholder="YourIGN / DiscordUser#1234" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="admin-age" class="required">How old are you?</label>
+                        <input type="number" id="admin-age" min="13" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="admin-timezone" class="required">What is your timezone?</label>
+                        <input type="text" id="admin-timezone" placeholder="EST, PST, GMT, etc." required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="admin-activeness" class="required">How many hours per week are you active in-game and on Discord?</label>
+                        <textarea id="admin-activeness" placeholder="Please specify hours for both in-game and Discord activity..." required></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3 class="form-section-title">Experience & Leadership</h3>
+                    
+                    <div class="form-group">
+                        <label for="admin-experience" class="required">Have you ever been an admin (or higher) on another server? If yes, describe your role.</label>
+                        <textarea id="admin-experience" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="admin-challenge" class="required">What's the biggest challenge you've faced as staff on any server (if any), and how did you handle it?</label>
+                        <textarea id="admin-challenge" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="admin-fair-enforcement" class="required">How familiar are you with enforcing rules fairly, even against friends or well-known members?</label>
+                        <textarea id="admin-fair-enforcement" required></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3 class="form-section-title">Decision-Making & Problem Solving</h3>
+                    
+                    <div class="form-group">
+                        <label for="admin-ban-without-evidence" class="required">A moderator bans someone without proper evidence. How would you handle this situation?</label>
+                        <textarea id="admin-ban-without-evidence" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="admin-cheating-accusation" class="required">A group of players accuses another player of cheating, but you're not sure if it's true. What steps would you take?</label>
+                        <textarea id="admin-cheating-accusation" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="admin-server-drama" class="required">If the server started experiencing drama or division among members, how would you handle it as an admin?</label>
+                        <textarea id="admin-server-drama" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="admin-abuse-power" class="required">How would you deal with another staff member who is abusing their powers?</label>
+                        <textarea id="admin-abuse-power" required></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3 class="form-section-title">Responsibility & Vision</h3>
+                    
+                    <div class="form-group">
+                        <label for="admin-why" class="required">Why do you want to be an Admin on this server specifically?</label>
+                        <textarea id="admin-why" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="admin-good-admin" class="required">What do you think makes a good Admin different from a good Moderator?</label>
+                        <textarea id="admin-good-admin" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="admin-tough-decisions" class="required">Are you comfortable making tough decisions that might upset some players but benefit the server overall? (Explain your answer.)</label>
+                        <textarea id="admin-tough-decisions" required></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3 class="form-section-title">Final Check (yes/no)</h3>
+                    
+                    <div class="form-group">
+                        <label for="admin-dedicate-time" class="required">Are you willing to dedicate time to helping manage both the Discord and the in-game server?</label>
+                        <select id="admin-dedicate-time" required>
+                            <option value="">Select an option</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="admin-accountable" class="required">Are you okay with being held accountable for your actions as an Admin?</label>
+                        <select id="admin-accountable" required>
+                            <option value="">Select an option</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="submit">Submit Admin Application</button>
+                <div id="admin-success" class="success-message">
+                    Your admin application has been submitted successfully!
+                </div>
+            </form>
+            
+            <!-- Admin Panel -->
+            <div id="admin-panel" class="admin-panel">
+                <h2>Admin Panel - Application Management</h2>
+                <p>Welcome, Administrator! <a href="#" id="logout-link" style="color: var(--primary); margin-left: 10px;">Logout</a></p>
+                
+                <div class="applications-list">
+                    <h3>Submitted Applications</h3>
+                    <div id="applications-container">
+                        <!-- Applications will be listed here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Applications are stored in a secure database. Only admins can access submitted applications.</p>
+        </footer>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="login-modal">
+        <div class="login-form">
+            <button class="close-modal" id="close-modal">×</button>
+            <h2>Admin Login</h2>
+            <div class="form-group">
+                <label for="admin-password" class="required">Admin Password</label>
+                <input type="password" id="admin-password" required>
+            </div>
+            <button id="login-btn">Login</button>
+            <p id="login-error" style="color: var(--danger); margin-top: 15px; display: none;">Invalid password</p>
+            
+            <div style="margin-top: 20px; padding: 15px; background-color: var(--dark); border-radius: 6px;">
+                <p style="font-size: 13px; color: #999;">Admin Password:</p>
+                <p style="font-size: 13px; color: #999;">Use the server admin password</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+        const JSONBIN_BIN_ID = '68b34f4443b1c97be9313639'; 
+        const JSONBIN_API_KEY = '$2a$10$tJEMTepocVWvoeX88Hz2MO7cqhu6xs6KQFH/9QOxYjDnHs3O55eYO';
+        const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+        
+        // PLS DO NOT USE THIS IF YOUR NOT A ADMIN
+        const ADMIN_PASSWORD = "32145787893272731dansserver";
+        
+        let applications = [];
+        let isAdminLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+        
+        
+        const adminLoginBtn = document.getElementById('admin-login-btn');
+        const loginModal = document.getElementById('login-modal');
+        const closeModal = document.getElementById('close-modal');
+        const loginBtn = document.getElementById('login-btn');
+        const adminPanel = document.getElementById('admin-panel');
+        const logoutLink = document.getElementById('logout-link');
+        const applicationsContainer = document.getElementById('applications-container');
+        
+        
+        function showNotification(message, isError = false) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            notification.style.backgroundColor = isError ? '#ED4245' : '#57F287';
+            notification.style.color = isError ? 'white' : 'black';
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+        
+        
+        async function fetchData() {
+            try {
+                const response = await fetch(JSONBIN_URL, {
+                    headers: {
+                        'X-Master-Key': JSONBIN_API_KEY
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                
+                const data = await response.json();
+                applications = data.record.applications || [];
+                
+                if (isAdminLoggedIn) {
+                    loadApplications();
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                showNotification('Error loading data. Using local storage instead.', true);
+                
+                
+                applications = JSON.parse(localStorage.getItem('staffApplications')) || [];
+                
+                if (isAdminLoggedIn) {
+                    loadApplications();
+                }
+            }
+        }
+        
+        
+        async function saveData() {
+            const dataToSave = {
+                applications
+            };
+            
+            try {
+                const response = await fetch(JSONBIN_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': JSONBIN_API_KEY
+                    },
+                    body: JSON.stringify(dataToSave)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to save data');
+                }
+                
+                
+                localStorage.setItem('staffApplications', JSON.stringify(applications));
+                
+                showNotification('Application submitted successfully!');
+            } catch (error) {
+                console.error('Error saving data:', error);
+                showNotification('Error saving to cloud. Using local storage.', true);
+                
+                
+                localStorage.setItem('staffApplications', JSON.stringify(applications));
+            }
+        }
+        
+        
+        if (isAdminLoggedIn) {
+            fetchData();
+            showAdminPanel();
+        }
+        
+        
+        adminLoginBtn.addEventListener('click', () => {
+            loginModal.style.display = 'flex';
+        });
+        
+        closeModal.addEventListener('click', () => {
+            loginModal.style.display = 'none';
+            document.getElementById('login-error').style.display = 'none';
+        });
+        
+        loginBtn.addEventListener('click', () => {
+            const password = document.getElementById('admin-password').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                
+                localStorage.setItem('adminLoggedIn', 'true');
+                isAdminLoggedIn = true;
+                loginModal.style.display = 'none';
+                document.getElementById('admin-password').value = '';
+                fetchData();
+                showAdminPanel();
+            } else {
+                
+                document.getElementById('login-error').style.display = 'block';
+            }
+        });
+        
+        logoutLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.setItem('adminLoggedIn', 'false');
+            isAdminLoggedIn = false;
+            adminPanel.style.display = 'none';
+            document.querySelector('.tabs').style.display = 'flex';
+            switchTab('mod');
+        });
+        
+        
+        function showAdminPanel() {
+            
+            document.querySelectorAll('.form').forEach(form => {
+                form.style.display = 'none';
+            });
+            
+            
+            document.querySelector('.tabs').style.display = 'none';
+            
+            
+            adminPanel.style.display = 'block';
+            
+            
+            loadApplications();
+        }
+        
+        
+        function loadApplications() {
+            applicationsContainer.innerHTML = '';
+            
+            if (applications.length === 0) {
+                applicationsContainer.innerHTML = '<p>No applications submitted yet.</p>';
+                return;
+            }
+            
+            applications.forEach((app, index) => {
+                const appElement = document.createElement('div');
+                appElement.className = 'application-item';
+                
+                const date = new Date(app.timestamp);
+                const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+                
+                appElement.innerHTML = `
+                    <h3>${app.type} Application</h3>
+                    <div class="application-meta">
+                        <span>Username: ${app.username}</span>
+                        <span>Age: ${app.age}</span>
+                        <span>Submitted: ${formattedDate}</span>
+                    </div>
+                    <p><strong>Why they want to be staff:</strong> ${app.why.substring(0, 100)}${app.why.length > 100 ? '...' : ''}</p>
+                    <div class="application-actions">
+                        <button class="download-btn" onclick="downloadApplication(${index})">Download</button>
+                        <button class="delete-btn" onclick="deleteApplication(${index})">Delete</button>
+                    </div>
+                `;
+                
+                applicationsContainer.appendChild(appElement);
+            });
+        }
+        
+        
+        function downloadApplication(index) {
+            const app = applications[index];
+            
+            let textContent = `DISCORD STAFF APPLICATION\n`;
+            textContent += `========================\n\n`;
+            textContent += `Application Type: ${app.type}\n`;
+            textContent += `Username: ${app.username}\n`;
+            textContent += `Age: ${app.age}\n`;
+            textContent += `Timezone: ${app.timezone}\n`;
+            textContent += `Activity Level: ${app.activeness}\n\n`;
+            
+            if (app.type === 'Moderator') {
+                textContent += `HANDLING ARGUING PLAYERS:\n${app.arguing || 'Not provided'}\n\n`;
+                textContent += `HANDLING RULE BREAKERS:\n${app.breakingRules || 'Not provided'}\n\n`;
+                textContent += `HANDLING FRIEND BREAKING RULES:\n${app.friendBreaksRules || 'Not provided'}\n\n`;
+                textContent += `WHY BE A MODERATOR:\n${app.why || 'Not provided'}\n\n`;
+                textContent += `QUALITIES:\n${app.qualities || 'Not provided'}\n\n`;
+                textContent += `COMFORT WITH INSTRUCTIONS:\n${app.instructions || 'Not provided'}\n\n`;
+            } else {
+                textContent += `PREVIOUS EXPERIENCE:\n${app.experience || 'Not provided'}\n\n`;
+                textContent += `BIGGEST CHALLENGE:\n${app.challenge || 'Not provided'}\n\n`;
+                textContent += `FAIR ENFORCEMENT:\n${app.fairEnforcement || 'Not provided'}\n\n`;
+                textContent += `HANDLING BAN WITHOUT EVIDENCE:\n${app.banWithoutEvidence || 'Not provided'}\n\n`;
+                textContent += `HANDLING CHEATING ACCUSATION:\n${app.cheatingAccusation || 'Not provided'}\n\n`;
+                textContent += `HANDLING SERVER DRAMA:\n${app.serverDrama || 'Not provided'}\n\n`;
+                textContent += `HANDLING STAFF ABUSE:\n${app.abusePower || 'Not provided'}\n\n`;
+                textContent += `WHY BE AN ADMIN:\n${app.why || 'Not provided'}\n\n`;
+                textContent += `GOOD ADMIN VS MODERATOR:\n${app.goodAdmin || 'Not provided'}\n\n`;
+                textContent += `TOUGH DECISIONS:\n${app.toughDecisions || 'Not provided'}\n\n`;
+                textContent += `DEDICATE TIME: ${app.dedicateTime || 'Not provided'}\n`;
+                textContent += `ACCEPT ACCOUNTABILITY: ${app.accountable || 'Not provided'}\n\n`;
+            }
+            
+            textContent += `Submitted: ${new Date(app.timestamp).toLocaleString()}\n`;
+            
+            downloadFile(textContent, `${app.type}_Application_${app.username.replace(/\//g, '_').replace(/#/g, '_')}.txt`, 'text/plain');
+        }
+        
+        
+        async function deleteApplication(index) {
+            if (confirm('Are you sure you want to delete this application?')) {
+                applications.splice(index, 1);
+                await saveData();
+                loadApplications();
+                showNotification('Application deleted successfully!');
+            }
+        }
+        
+        
+        function downloadFile(content, fileName, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        
+        function switchTab(tabName) {
+            
+            document.querySelectorAll('.form').forEach(form => {
+                form.classList.remove('active');
+            });
+            
+            
+            document.getElementById(tabName + '-form').classList.add('active');
+            
+            
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            event.target.classList.add('active');
+        }
+        
+        
+        document.getElementById('mod-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = {
+                type: 'Moderator',
+                username: document.getElementById('mod-username').value,
+                age: document.getElementById('mod-age').value,
+                timezone: document.getElementById('mod-timezone').value,
+                activeness: document.getElementById('mod-activeness').value,
+                arguing: document.getElementById('mod-arguing').value,
+                breakingRules: document.getElementById('mod-breaking-rules').value,
+                friendBreaksRules: document.getElementById('mod-friend-breaks-rules').value,
+                why: document.getElementById('mod-why').value,
+                qualities: document.getElementById('mod-qualities').value,
+                instructions: document.getElementById('mod-instructions').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            applications.push(formData);
+            await saveData();
+            
+            document.getElementById('mod-success').style.display = 'block';
+            this.reset();
+            
+            setTimeout(() => {
+                document.getElementById('mod-success').style.display = 'none';
+            }, 3000);
+        });
+        
+        document.getElementById('admin-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = {
+                type: 'Administrator',
+                username: document.getElementById('admin-username').value,
+                age: document.getElementById('admin-age').value,
+                timezone: document.getElementById('admin-timezone').value,
+                activeness: document.getElementById('admin-activeness').value,
+                experience: document.getElementById('admin-experience').value,
+                challenge: document.getElementById('admin-challenge').value,
+                fairEnforcement: document.getElementById('admin-fair-enforcement').value,
+                banWithoutEvidence: document.getElementById('admin-ban-without-evidence').value,
+                cheatingAccusation: document.getElementById('admin-cheating-accusation').value,
+                serverDrama: document.getElementById('admin-server-drama').value,
+                abusePower: document.getElementById('admin-abuse-power').value,
+                why: document.getElementById('admin-why').value,
+                goodAdmin: document.getElementById('admin-good-admin').value,
+                toughDecisions: document.getElementById('admin-tough-decisions').value,
+                dedicateTime: document.getElementById('admin-dedicate-time').value,
+                accountable: document.getElementById('admin-accountable').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            applications.push(formData);
+            await saveData();
+            
+            document.getElementById('admin-success').style.display = 'block';
+            this.reset();
+            
+            setTimeout(() => {
+                document.getElementById('admin-success').style.display = 'none';
+            }, 3000);
+        });
+        
+        
+        window.downloadApplication = downloadApplication;
+        window.deleteApplication = deleteApplication;
+    </script>
+</body>
+</html>
